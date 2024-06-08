@@ -44,26 +44,79 @@ def search_google_maps(location):
         query = urllib.parse.quote(location)
         url = f"https://www.google.com/maps/search/{query}"
         driver.get(url)
-        time.sleep(3)
 
-        # Select restaurant button
+        
         restaurant_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/button'
-        driver.find_element(By.XPATH, restaurant_xpath).click()
-        time.sleep(5)
+        click_time = 10
+        while click_time > 0:
+            try:
+                driver.find_element(By.XPATH, restaurant_xpath).click()
+                break
+            except Exception as e:
+                print(f"restaurant button not found, retrying... ({click_time} attempts left)")
+                click_time -= 1
+                time.sleep(1)
 
-        # Grab the restaurant info divs
+        time.sleep(1)
+
+        open_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[3]/button'
+        click_time = 10
+        while click_time > 0:
+            try:
+                driver.find_element(By.XPATH, open_xpath).click()
+                break
+            except Exception as e:
+                print(f"open button not found, retrying... ({click_time} attempts left)")
+                click_time -= 1
+                time.sleep(1)
+
+        time.sleep(1)
+
+        open_select_xpath = '//*[@id="ucc-4"]'
+        click_time = 10
+        while click_time > 0:
+            try:
+                driver.find_element(By.XPATH, open_select_xpath).click()
+                break
+            except Exception as e:
+                print(f"open_select button not found, retrying... ({click_time} attempts left)")
+                click_time -= 1
+                time.sleep(1)
+
+        time.sleep(1)
+
+        ok_xpath = '//*[@id="ucc-8"]'
+        click_time = 10
+        while click_time > 0:
+            try:
+                driver.find_element(By.XPATH, ok_xpath).click()
+                break
+            except Exception as e:
+                print(f"ok button not found, retrying... ({click_time} attempts left)")
+                click_time -= 1
+                time.sleep(1)
+
+        time.sleep(1)
+
+        scrollable_div_xpath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[1]/div[1]'
+        scrollable_div = driver.find_element(By.XPATH, scrollable_div_xpath)
+
+        for _ in range(5):
+            driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", scrollable_div)
+            time.sleep(2)
+
         info_divs = driver.find_elements(By.XPATH, '//div[contains(@class, "Nv2PK THOPZb CpccDe ")]')
         
-        # Extract text from inner divs and print HTML
-        for div in info_divs[:10]:  # Process the first 10 results
+        for div in info_divs[:10]:
             try:
-                print(div.get_attribute('outerHTML'))  # Print the HTML code of the div
+                # print(div.get_attribute('outerHTML'))  # Print the HTML code of the div
                 name_div = div.find_element(By.XPATH, './/div[contains(@class, "qBF1Pd")]')
                 results.append(name_div.text)
+                print(name_div.text)
             except Exception as e:
-                # If there is no such element or any other error, print the exception and skip this div
                 print(f"Error: {e}")
                 continue
+        print('info_divs len = ', len(info_divs))
     finally:
         driver.quit()
         searching = False
