@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地點搜尋</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>地點搜尋</h1>
+        <input type="text" id="location" placeholder="輸入地點">
+        <button onclick="searchLocation()">搜尋</button>
+        <p id="status"></p>
+        <div class="results" id="results"></div>
+    </div>
+    <script>
+        function searchLocation() {
+            var location = document.getElementById("location").value;
+            if (location) {
+                fetch('http://localhost:8000/search?location=' + encodeURIComponent(location))
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("status").textContent = data.status;
+                        checkResults(); // Start checking for results immediately
+                    });
+            } else {
+                alert('請輸入地點');
+            }
+        }
+
+        function checkResults() {
+            fetch('http://localhost:8000/results')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "Searching") {
+                        setTimeout(checkResults, 2000); // Check again after 2 seconds
+                    } else {
+                        displayResults(data.results);
+                    }
+                });
+        }
+
+        function displayResults(results) {
+            var resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "";
+            if (results.length > 0) {
+                results.forEach(function (result) {
+                    var p = document.createElement("p");
+                    p.textContent = result;
+                    resultsDiv.appendChild(p);
+                });
+            } else {
+                resultsDiv.textContent = "No results found.";
+            }
+        }
+    </script>
+</body>
+
+</html>
