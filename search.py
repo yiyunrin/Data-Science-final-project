@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import NoSuchElementException
 import time
 import urllib.parse
 from flask import Flask, request, send_from_directory, jsonify
@@ -45,34 +46,131 @@ def search_google_maps(location):
         url = f"https://www.google.com/maps/search/{query}"
         driver.get(url)
 
+        buttons_exist = False
+        check_time = 10
+        while check_time > 0:
+            try:
+                check_time -= 1
+                first_button_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/button'
+                driver.find_element(By.XPATH, first_button_xpath)
+                buttons_exist = True
+                break
+            except NoSuchElementException:
+                print("No buttons found.")
+                time.sleep(1)
+        if not buttons_exist:
+            print("No buttons found.")
+            return
         
-        restaurant_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/button'
-        click_time = 10
-        while click_time > 0:
+        # find restaurant botton
+        restaurant_button = -1
+        for i in range(1, 6):
             try:
-                driver.find_element(By.XPATH, restaurant_xpath).click()
+                button_xpath = f'//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[{i}]/button'
+                button = driver.find_element(By.XPATH, button_xpath)
+                if "餐廳" in button.text:
+                    button.click()
+                    restaurant_button = i
+                    break
+            except NoSuchElementException:
+                print(f"Button at index {i} not found.")
                 break
             except Exception as e:
-                print(f"restaurant button not found, retrying... ({click_time} attempts left)")
-                click_time -= 1
-                time.sleep(1)
+                print(f"Error finding button at index {i}: {e}")
+                return
+            
+        # if restaurant button is found, click it
+        if restaurant_button != -1:
+            restaurant_xpath = f'//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[{restaurant_button}]/button'
+            click_time = 10
+            while click_time > 0:
+                try:
+                    driver.find_element(By.XPATH, restaurant_xpath).click()
+                    break
+                except Exception as e:
+                    print(f"restaurant button not found, retrying... ({click_time} attempts left)")
+                    click_time -= 1
+                    time.sleep(1)
+        else:
+            try:
+                place_xpath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[1]/div[1]/div[3]'
+                driver.find_element(By.XPATH, place_xpath).click()
+            except:
+                print('place_xpath not found')
+
+            click_time = 10
+            near_xpath = '//*[@id="QA0Szd"]/div/div/div[1]/div[3]/div/div[1]/div/div/div[2]/div[4]/div[3]/button'
+            while click_time > 0:
+                try:
+                    driver.find_element(By.XPATH, near_xpath).click()
+                    break
+                except Exception as e:
+                    print(f"restaurant button not found, retrying... ({click_time} attempts left)")
+                    click_time -= 1
+                    time.sleep(1)
+            
+            click_time = 10
+            restaurant_xpath = '//*[@id="ydp1wd-haAclf"]/div[1]'
+            while click_time > 0:
+                try:
+                    driver.find_element(By.XPATH, restaurant_xpath).click()
+                    break
+                except Exception as e:
+                    print(f"restaurant button not found, retrying... ({click_time} attempts left)")
+                    click_time -= 1
+                    time.sleep(1)
 
         time.sleep(1)
 
-        open_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[2]/button'
-        click_time = 10
-        while click_time > 0:
+        buttons_exist = False
+        check_time = 10
+        while check_time > 0:
             try:
-                driver.find_element(By.XPATH, open_xpath).click()
+                check_time -= 1
+                first_button_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[1]/button'
+                driver.find_element(By.XPATH, first_button_xpath)
+                buttons_exist = True
+                break
+            except NoSuchElementException:
+                print("No buttons found.")
+                time.sleep(1)
+        if not buttons_exist:
+            print("No buttons found.")
+            return
+
+        # find open button
+        open_button = -1
+        for i in range(1, 6):
+            try:
+                button_xpath = f'//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[{i}]/button'
+                button = driver.find_element(By.XPATH, button_xpath)
+                if "營業時間" in button.text:
+                    button.click()
+                    restaurant_button = i
+                    break
+            except NoSuchElementException:
+                print(f"Button at index {i} not found.")
                 break
             except Exception as e:
-                print(f"open button not found, retrying... ({click_time} attempts left)")
-                click_time -= 1
-                time.sleep(1)
+                print(f"Error finding button at index {i}: {e}")
+                return
+        
+        # if open button is found, click it
+        if open_button != -1:
+            open_xpath = f'//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[{open_button}]/button'
+            click_time = 10
+            while click_time > 0:
+                try:
+                    driver.find_element(By.XPATH, open_xpath).click()
+                    break
+                except Exception as e:
+                    print(f"open button not found, retrying... ({click_time} attempts left)")
+                    click_time -= 1
+                    time.sleep(1)
 
         time.sleep(1)
-
-        open_select_xpath = '//*[@id="ucc-4"]'
+        
+        open_select_xpath = '//*[@id="popup"]/div/div/div/div[1]/div/div/div[1]/div[1]/div[3]'
         click_time = 10
         while click_time > 0:
             try:
@@ -85,7 +183,7 @@ def search_google_maps(location):
 
         time.sleep(1)
 
-        ok_xpath = '//*[@id="ucc-8"]'
+        ok_xpath = '//*[@id="popup"]/div/div/div/div[1]/div/div/div[2]/button[2]'
         click_time = 10
         while click_time > 0:
             try:
