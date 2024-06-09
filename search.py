@@ -59,7 +59,7 @@ def search_google_maps(location):
 
         time.sleep(1)
 
-        open_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[3]/button'
+        open_xpath = '//*[@id="assistive-chips"]/div/div/div/div[1]/div/div/div/div/div[2]/div[2]/div[2]/button'
         click_time = 10
         while click_time > 0:
             try:
@@ -107,7 +107,7 @@ def search_google_maps(location):
 
         info_divs = driver.find_elements(By.XPATH, '//div[contains(@class, "Nv2PK THOPZb CpccDe ")]')
         
-        for div in info_divs[:10]:
+        for div in info_divs[:20]:
             try:
                 # print(div.get_attribute('outerHTML'))  # Print the HTML code of the div
                 name_div = div.find_element(By.XPATH, './/div[contains(@class, "qBF1Pd")]')

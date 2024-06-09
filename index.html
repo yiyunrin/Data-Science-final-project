@@ -4,60 +4,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>地點搜尋</title>
+    <title>附近餐廳搜尋</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
+            align-items: flex-start;
+            height: 100vw;
+            background-color: #e5d1fd;
         }
 
         .container {
             text-align: center;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
+            background: #d8b8ff;
+            padding: 1vw;
+            border-radius: 0.4vw;
+            width: 50vw;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 5vw;
         }
 
         input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
+            width: 50%;
+            padding: 0.5vw;
+            margin-bottom: 0.5vw;
+            border: 0.05vw solid #e5d1fd;
             border-radius: 4px;
         }
 
         button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: #fff;
+            padding: 0.5vw 1vw;
+            background-color: #5528a7;
+            color: #e5d1fd;
             border: none;
-            border-radius: 4px;
+            border-radius: 0.2vw;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #7f4cdc;
+        }
+
+        .center_button {
+            display: flex;
+            justify-content: center;
+            margin-top: 1vw;
         }
 
         .results {
-            margin-top: 20px;
+            margin-top: 1vw;
+            margin-left: 1vw;
             text-align: left;
+        }
+
+        .random-result {
+            margin-top: 1vw;
+            font-size: 1.5vw;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>地點搜尋</h1>
+        <h1>附近餐廳搜尋</h1>
         <input type="text" id="location" placeholder="輸入地點">
         <button onclick="searchLocation()">搜尋</button>
         <p id="status"></p>
         <div class="results" id="results"></div>
+        <div class="center_button">
+            <button id="random-button" onclick="selectRandom()" style="display:none;">隨機選擇</button>
+        </div>
+        <div id="selected-result" class="random-result"></div>
     </div>
     <script>
         function searchLocation() {
@@ -82,6 +101,7 @@
                         setTimeout(checkResults, 2000); // Check again after 2 seconds
                     } else {
                         displayResults(data.results);
+                        document.getElementById("random-button").style.display = "block"; // Show the random button
                     }
                 });
         }
@@ -91,12 +111,42 @@
             resultsDiv.innerHTML = "";
             if (results.length > 0) {
                 results.forEach(function (result) {
-                    var p = document.createElement("p");
-                    p.textContent = result;
-                    resultsDiv.appendChild(p);
+                    var div = document.createElement("div");
+                    var checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.value = result;
+                    var label = document.createElement("label");
+                    label.textContent = result;
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    resultsDiv.appendChild(div);
                 });
             } else {
                 resultsDiv.textContent = "No results found.";
+            }
+        }
+
+        function selectRandom() {
+            var selected = [];
+            var checkboxes = document.querySelectorAll('#results input[type="checkbox"]:checked');
+            checkboxes.forEach(function (checkbox) {
+                selected.push(checkbox.value);
+            });
+            if (selected.length > 0) {
+                let i = 0;
+                function displaySequentially() {
+                    if (i < 20) {
+                        document.getElementById("selected-result").textContent = selected[i % selected.length];
+                        i++;
+                        setTimeout(displaySequentially, 100); // Call the function every 0.1 second
+                    } else {
+                        var randomIndex = Math.floor(Math.random() * selected.length);
+                        document.getElementById("selected-result").textContent = "隨機結果: " + selected[randomIndex];
+                    }
+                }
+                displaySequentially();
+            } else {
+                document.getElementById("selected-result").textContent = "請選擇至少一個選項";
             }
         }
     </script>
