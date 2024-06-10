@@ -3,7 +3,7 @@
 在Anaconda Prompt中，輸入以下指令來安裝環境和套件，env_name為自訂環境名稱
 ```cpp=
 conda create --name {env_name} python=3.9
-conda activte {env_name} 
+conda activate {env_name} 
 pip install -r requirements.txt
 ```
 
