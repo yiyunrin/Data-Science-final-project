@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>附近餐廳搜尋</title>
+    <title>今天吃什麼？</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,7 +70,7 @@
 
 <body>
     <div class="container">
-        <h1>附近餐廳搜尋</h1>
+        <h1>今天吃什麼？</h1>
         <input type="text" id="location" placeholder="輸入地點">
         <button onclick="searchLocation()">搜尋</button>
         <p id="status"></p>
@@ -81,6 +81,7 @@
         <div id="selected-result" class="random-result"></div>
     </div>
     <script>
+        // get the entered location
         function searchLocation() {
             var location = document.getElementById("location").value;
             if (location) {
@@ -88,26 +89,28 @@
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById("status").textContent = data.status;
-                        checkResults(); // Start checking for results immediately
+                        checkResults();
                     });
             } else {
                 alert('請輸入地點');
             }
         }
 
+        // check every two seconds if there are any search results
         function checkResults() {
             fetch('http://localhost:8000/results')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "Searching") {
-                        setTimeout(checkResults, 2000); // Check again after 2 seconds
+                        setTimeout(checkResults, 2000);
                     } else {
                         displayResults(data.results);
-                        document.getElementById("random-button").style.display = "block"; // Show the random button
+                        document.getElementById("random-button").style.display = "block";
                     }
                 });
         }
 
+        // display results in a selectable list
         function displayResults(results) {
             var resultsDiv = document.getElementById("results");
             resultsDiv.innerHTML = "";
@@ -128,6 +131,7 @@
             }
         }
 
+        // randomly select a restaurant
         function selectRandom() {
             var selected = [];
             var checkboxes = document.querySelectorAll('#results input[type="checkbox"]:checked');
@@ -140,7 +144,7 @@
                     if (i < 20) {
                         document.getElementById("selected-result").textContent = selected[i % selected.length];
                         i++;
-                        setTimeout(displaySequentially, 100); // Call the function every 0.1 second
+                        setTimeout(displaySequentially, 100);
                     } else {
                         var randomIndex = Math.floor(Math.random() * selected.length);
                         document.getElementById("selected-result").textContent = "隨機結果: " + selected[randomIndex];
